@@ -72,25 +72,36 @@ function GameBoard({ xIsNext, squares, onPlay}) {
 }
 
 function GameInfo({ history, currentMove, onJump }) {
+ const [isAscending, setIsAscending] = useState(true)
  function getMoveDescription(move) {
   return move > 0 ? `Go to move #${move}` : 'Go to game start';
  }
 
+ let transformedHistory = isAscending ? history : [...history].reverse();
  // You’ll use map to transform your history of moves into React elements representing buttons on the screen
-  const moves = history.map((squares, move) => {
-    let description = getMoveDescription(move);
+  const moves = transformedHistory.map((squares) => {
+    const realMoveIndex = history.indexOf(squares);
+    let description = getMoveDescription(realMoveIndex);
 
     return (
-      <li key={move}>
+      <li key={realMoveIndex}>
       {
-        move === currentMove ? (`You are at move #${move}`) : (<button onClick={() => onJump(move)}>{description}</button>)
+        realMoveIndex === currentMove ? (`You are at move #${realMoveIndex}`) : (<button onClick={() => onJump(realMoveIndex)}>{description}</button>)
       }
       </li>
     );
   });
 
+  function sort() {
+    setIsAscending(!isAscending)
+    console.log("transformedHistory", transformedHistory)
+  }
+
   return (
-    <ol>{ moves }</ol>
+    <div>
+      <button onClick={() => sort()}>Sort { isAscending ? "↑" : "↓" }</button>
+      <ol>{ moves }</ol>
+    </div>
   )
 }
 
