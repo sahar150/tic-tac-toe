@@ -25,7 +25,7 @@ function Square({ value, onSquareClick }) {
 }
 
 
-function Board({ xIsNext, squares, onPlay}) {
+function GameBoard({ xIsNext, squares, onPlay}) {
   function handleClick(index) {
     if( (squares[index]) || calculateWinner(squares) )return;
 
@@ -71,6 +71,29 @@ function Board({ xIsNext, squares, onPlay}) {
   )
 }
 
+function GameInfo({ history, currentMove, onJump }) {
+ function getMoveDescription(move) {
+  return move > 0 ? `Go to move #${move}` : 'Go to game start';
+ }
+
+ // You’ll use map to transform your history of moves into React elements representing buttons on the screen
+  const moves = history.map((squares, move) => {
+    let description = getMoveDescription(move);
+
+    return (
+      <li key={move}>
+      {
+        move === currentMove ? (`You are at move #${move}`) : (<button onClick={() => onJump(move)}>{description}</button>)
+      }
+      </li>
+    );
+  });
+
+  return (
+    <ol>{ moves }</ol>
+  )
+}
+
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
@@ -87,30 +110,13 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
 
-  // You’ll use map to transform your history of moves into React elements representing buttons on the screen
-  const moves = history.map((squares, move) => {
-    let description;
-    if (move > 0) {
-      description = 'Go to move #' + move;
-    } else {
-      description = 'Go to game start';
-    }
-    return (
-      <li key={move}>
-      {
-        move === currentMove ? (`You are at move #${move}`) : (<button onClick={() => jumpTo(move)}>{description}</button>)
-      }
-      </li>
-    );
-  });
-
   return (
     <div className="game">
       <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+        <GameBoard xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className="game-info">
-        <ol>{ moves }</ol>
+        <GameInfo history={history} currentMove={currentMove} onJump={jumpTo} />
       </div>
     </div>
   );
