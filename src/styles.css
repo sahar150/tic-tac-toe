@@ -77,6 +77,11 @@ body {
 	display: table;
 }
 
+.square.highlighted {
+	background: green;
+	color: white;
+}
+
 .status {
 	margin-bottom: 10px;
 }

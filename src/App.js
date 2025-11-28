@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-function calculateWinner(squares) {
+function getWinSquares(squares) {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -14,20 +14,20 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return lines[i];
     }
   }
   return null;
 }
 
-function Square({ value, onSquareClick }) {
-  return <button className="square" onClick={onSquareClick}>{ value }</button>
+function Square({ value, isHighlighted, onSquareClick }) {
+  return <button className={"square " + (isHighlighted ? "highlighted" : "")} onClick={onSquareClick}>{ value }</button>
 }
 
 
 function GameBoard({ xIsNext, squares, onPlay}) {
   function handleClick(index) {
-    if( (squares[index]) || calculateWinner(squares) )return;
+    if( (squares[index]) || winSquares )return;
 
     const nextSquares = squares.slice()
      if (xIsNext) {
@@ -38,13 +38,18 @@ function GameBoard({ xIsNext, squares, onPlay}) {
     onPlay(nextSquares);
   }
 
-  const winner = calculateWinner(squares);
+  const winSquares = getWinSquares(squares);
+  const winner = winSquares ? squares[winSquares[0]] : null;
   let status;
 
   if (winner) {
     status = `The winner is ${winner}`
   } else {
     status = `The next player is: ${xIsNext ? 'X' : 'O'}`
+  }
+
+  if (!winner && !squares.includes(null)) {
+    status = "The game ended in a draw."
   }
 
   const boardRows = [];
@@ -56,7 +61,7 @@ function GameBoard({ xIsNext, squares, onPlay}) {
       boardRows.push(
         <div key={i} className="board-row">
           {rowSquares.map((value, index) => (
-            <Square key={rowStart + index} value={value} onSquareClick={() => handleClick(rowStart + index)} />
+            <Square key={rowStart + index} value={value} isHighlighted={winSquares?.includes(rowStart + index)} onSquareClick={() => handleClick(rowStart + index)} />
           ))}
         </div>
       )
@@ -94,7 +99,6 @@ function GameInfo({ history, currentMove, onJump }) {
 
   function sort() {
     setIsAscending(!isAscending)
-    console.log("transformedHistory", transformedHistory)
   }
 
   return (
